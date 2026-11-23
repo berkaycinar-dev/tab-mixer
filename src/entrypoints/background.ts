@@ -1,10 +1,10 @@
 import { browser, type Browser } from 'wxt/browser';
 import { MAX_GAIN } from '@/lib/engine';
 import type { ContentMessage, Message, Response, TabInfo } from '@/lib/messages';
-import { tabStore } from '@/lib/state';
+import { siteOf, siteStore, tabStore } from '@/lib/state';
 
 async function listTabs(): Promise<TabInfo[]> {
-  const [tabs, states] = await Promise.all([browser.tabs.query({}), tabStore.all()]);
+  const [tabs, states, sites] = await Promise.all([browser.tabs.query({}), tabStore.all(), siteStore.all()]);
   return tabs
     .filter((t) => {
       if (t.id == null) return false;
@@ -21,16 +21,47 @@ async function listTabs(): Promise<TabInfo[]> {
       muted: !!t.mutedInfo?.muted,
       active: t.active,
       gain: states[t.id!]?.gain ?? 1,
+      remembered: ((site) => (site ? site in sites : null))(siteOf(t.url)),
     }))
     .sort((a, b) => Number(b.audible) - Number(a.audible) || a.id - b.id);
 }
 
-async function setGain(tabId: number, gain: number) {
-  const g = Math.min(MAX_GAIN, Math.max(0, Number(gain) || 0));
-  await tabStore.patch(tabId, { gain: g, seen: true });
+const clampGain = (gain: number) => Math.min(MAX_GAIN, Math.max(0, Number(gain) || 0));
+
+/** Sekmeye kazancı uygula (durum + tüm frame'ler). */
+async function applyGain(tabId: number, g: number) {
+  await tabStore.patch(tabId, { gain: g });
   const msg: ContentMessage = { type: 'tm:apply-gain', gain: g };
   await browser.tabs.sendMessage(tabId, msg).catch(() => {}); // tüm frame'lere gider
+}
+
+async function setGain(tabId: number, gain: number) {
+  const g = clampGain(gain);
+  await tabStore.patch(tabId, { seen: true });
+  await applyGain(tabId, g);
+  // Site hatırlanıyorsa kaydı da güncelle.
+  const site = siteOf((await browser.tabs.get(tabId)).url);
+  if (site && (await siteStore.get(site)) !== undefined) await siteStore.set(site, g);
   return g;
+}
+
+async function remember(tabId: number, on: boolean) {
+  const site = siteOf((await browser.tabs.get(tabId)).url);
+  if (!site) throw new Error('Bu sayfa için ses seviyesi hatırlanamaz');
+  await siteStore.set(site, on ? (await tabStore.get(tabId)).gain : null);
+  return null;
+}
+
+/** İçerik script'i yüklenirken sorduğunda: site kaydı varsa o, yoksa sekmenin mevcut kazancı. */
+async function gainForSender(sender: Browser.runtime.MessageSender) {
+  const tabId = sender.tab?.id;
+  if (tabId == null) return 1;
+  const saved = await siteStore.get(siteOf(sender.tab?.url));
+  if (saved !== undefined) {
+    await tabStore.patch(tabId, { gain: saved });
+    return saved;
+  }
+  return (await tabStore.get(tabId)).gain;
 }
 
 async function handle(msg: Message, sender: Browser.runtime.MessageSender): Promise<unknown> {
@@ -43,7 +74,9 @@ async function handle(msg: Message, sender: Browser.runtime.MessageSender): Prom
     case 'tm:set-gain':
       return setGain(msg.tabId, msg.gain);
     case 'tm:get-gain':
-      return sender.tab?.id != null ? (await tabStore.get(sender.tab.id)).gain : 1;
+      return gainForSender(sender);
+    case 'tm:remember':
+      return remember(msg.tabId, msg.on);
     case 'tm:focus': {
       const tab = await browser.tabs.update(msg.tabId, { active: true });
       if (tab?.windowId != null) await browser.windows.update(tab.windowId, { focused: true });
@@ -73,6 +106,13 @@ export default defineBackground(() => {
   // Ses çıkaran sekmeleri hatırla (durdurulsa bile listede kalsın).
   browser.tabs.onUpdated.addListener((tabId, info) => {
     if (info.audible) void tabStore.patch(tabId, { seen: true });
+    // Hatırlanan siteye gidildi: içerik script'i sormadan önce de durum doğru olsun
+    // (SPA içi gezinmeler ve script'in yüklenemediği durumlar dahil).
+    if (info.url) {
+      void siteStore.get(siteOf(info.url)).then((g) => {
+        if (g !== undefined) return applyGain(tabId, g);
+      });
+    }
   });
   browser.tabs.onRemoved.addListener((tabId) => void tabStore.remove(tabId));
   void browser.tabs.query({ audible: true }).then((tabs) => {

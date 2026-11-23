@@ -11,6 +11,8 @@ export interface TabInfo {
   active: boolean;
   /** 1 = %100 */
   gain: number;
+  /** Bu sitenin ses seviyesi kalıcı olarak hatırlanıyor mu (null: hatırlanamaz sayfa) */
+  remembered: boolean | null;
 }
 
 /** Popup / content → background */
@@ -19,6 +21,7 @@ export type Message =
   | { type: 'tm:set-muted'; tabId: number; muted: boolean }
   | { type: 'tm:set-gain'; tabId: number; gain: number }
   | { type: 'tm:get-gain' }
+  | { type: 'tm:remember'; tabId: number; on: boolean }
   | { type: 'tm:focus'; tabId: number };
 
 /** Background → content */

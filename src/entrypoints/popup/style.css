@@ -56,9 +56,11 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .meta { display: flex; flex-direction: column; min-width: 0; }
 .title, .host { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .host { color: var(--muted); font-size: 11px; }
-.mute { width: 30px; height: 30px; border-radius: 8px; font-size: 15px; flex: none; }
-.mute:hover { background: var(--hover); }
-.mute.on { background: var(--accent-soft); }
+.icon { width: 30px; height: 30px; border-radius: 8px; font-size: 15px; flex: none; }
+.icon:hover { background: var(--hover); }
+.icon.on { background: var(--accent-soft); }
+.icon.dim { filter: grayscale(1); opacity: 0.45; }
+.icon.dim:hover { opacity: 0.8; }
 button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
 .volume { display: flex; align-items: center; gap: 8px; width: 100%; padding: 0 2px; }

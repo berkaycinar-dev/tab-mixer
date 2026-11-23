@@ -24,6 +24,41 @@ async function all(): Promise<StateMap> {
   return (r[KEY] as StateMap | undefined) ?? {};
 }
 
+/** http(s) sayfalarının host'u; diğerleri için null (site hatırlama uygulanmaz). */
+export function siteOf(url: string | undefined): string | null {
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    return u.protocol === 'http:' || u.protocol === 'https:' ? u.hostname : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Site başına kalıcı kazanç (tarayıcı kapansa da kalır). */
+const SITE_KEY = 'siteGains';
+type SiteMap = Record<string, number>;
+
+async function allSites(): Promise<SiteMap> {
+  const r = await browser.storage.local.get(SITE_KEY);
+  return (r[SITE_KEY] as SiteMap | undefined) ?? {};
+}
+
+export const siteStore = {
+  all: allSites,
+  async get(site: string | null): Promise<number | undefined> {
+    return site ? (await allSites())[site] : undefined;
+  },
+  set(site: string, gain: number | null) {
+    return serial(async () => {
+      const map = await allSites();
+      if (gain == null) delete map[site];
+      else map[site] = gain;
+      await browser.storage.local.set({ [SITE_KEY]: map });
+    });
+  },
+};
+
 export const tabStore = {
   all,
   async get(tabId: number): Promise<TabState> {

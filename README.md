@@ -7,6 +7,11 @@ Chrome, Brave ve Firefox için sekmeler arası ses mikseri. Her sekmenin sesini 
 - Ses çalan (veya bu oturumda çalmış) sekmelerin listesi, sekmeye atlama
 - Sekme başına sessize alma
 - Sekme başına ses seviyesi: %0–%600 (tekerlekle ±%5, yüzdeye tıklayınca %100)
+- 📌 Site bazlı hatırlama: işaretlenen sitenin seviyesi kalıcı olarak saklanır; o siteye açılan yeni sekmeler ve yenilemeler aynı seviyeyle başlar
+
+## İkonlar
+
+`public/icon/*.png` dosyaları `node scripts/gen-icons.mjs` ile üretilir (bağımlılık gerektirmez).
 
 ### Bilinen sınırlamalar
 

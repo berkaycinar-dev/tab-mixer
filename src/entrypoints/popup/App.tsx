@@ -52,6 +52,14 @@ export function App() {
     void send({ type: 'tm:set-muted', tabId: tab.id, muted: !tab.muted });
   };
 
+  const toggleRemember = (tab: TabInfo) => {
+    const on = !tab.remembered;
+    // Aynı siteden açık diğer sekmeler de aynı durumu göstersin.
+    const host = hostOf(tab.url);
+    setTabs((ts) => ts?.map((t) => (hostOf(t.url) === host ? { ...t, remembered: on } : t)) ?? ts);
+    send({ type: 'tm:remember', tabId: tab.id, on }).catch((e) => setError(String(e.message ?? e)));
+  };
+
   const setGain = (tab: TabInfo, pct: number) => {
     const gain = Math.round(pct) / 100;
     patchLocal(tab.id, { gain });
@@ -84,8 +92,22 @@ export function App() {
                   <span class="host">{hostOf(tab.url)}</span>
                 </span>
               </button>
+              {tab.remembered !== null && (
+                <button
+                  class={tab.remembered ? 'icon on' : 'icon dim'}
+                  title={
+                    tab.remembered
+                      ? `${hostOf(tab.url)} için ses seviyesi hatırlanıyor — kapatmak için tıkla`
+                      : `${hostOf(tab.url)} için bu ses seviyesini hatırla`
+                  }
+                  aria-pressed={tab.remembered}
+                  onClick={() => toggleRemember(tab)}
+                >
+                  📌
+                </button>
+              )}
               <button
-                class={tab.muted ? 'mute on' : 'mute'}
+                class={tab.muted ? 'icon on' : 'icon'}
                 title={tab.muted ? 'Sesi aç' : 'Sessize al'}
                 aria-pressed={tab.muted}
                 onClick={() => toggleMute(tab)}
@@ -122,7 +144,7 @@ export function App() {
           );
         })}
       </ul>
-      <footer>Tekerlek: ±5% · Yüzdeye tıkla: sıfırla</footer>
+      <footer>Tekerlek: ±5% · Yüzdeye tıkla: sıfırla · 📌 siteyi hatırla</footer>
     </main>
   );
 }
