@@ -85,6 +85,28 @@ async function handle(msg: Message, sender: Browser.runtime.MessageSender): Prom
   }
 }
 
+const STEP = 0.1;
+
+async function runCommand(command: string, tab?: Browser.tabs.Tab) {
+  tab ??= (await browser.tabs.query({ active: true, currentWindow: true }))[0];
+  if (tab?.id == null) return;
+  const { gain } = await tabStore.get(tab.id);
+  switch (command) {
+    case 'volume-up':
+    case 'volume-down': {
+      const next = gain + (command === 'volume-up' ? STEP : -STEP);
+      await setGain(tab.id, Math.round(next * 100) / 100); // kayan nokta birikmesini önle
+      break;
+    }
+    case 'reset-volume':
+      await setGain(tab.id, 1);
+      break;
+    case 'toggle-mute':
+      await browser.tabs.update(tab.id, { muted: !tab.mutedInfo?.muted });
+      break;
+  }
+}
+
 /** Kurulumdan önce açık olan sekmelere motoru enjekte et (yenilemeye gerek kalmasın). */
 async function injectIntoOpenTabs() {
   const tabs = await browser.tabs.query({ url: ['http://*/*', 'https://*/*'] });
@@ -125,6 +147,8 @@ export default defineBackground(() => {
       if (reason === 'install' || reason === 'update') void injectIntoOpenTabs();
     });
   }
+
+  browser.commands.onCommand.addListener((command, tab) => void runCommand(command, tab));
 
   browser.runtime.onMessage.addListener((msg: Message, sender, sendResponse) => {
     handle(msg, sender).then(

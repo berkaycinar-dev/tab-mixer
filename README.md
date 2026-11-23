@@ -9,6 +9,17 @@ Chrome, Brave ve Firefox için sekmeler arası ses mikseri. Her sekmenin sesini 
 - Sekme başına ses seviyesi: %0–%600 (tekerlekle ±%5, yüzdeye tıklayınca %100)
 - 📌 Site bazlı hatırlama: işaretlenen sitenin seviyesi kalıcı olarak saklanır; o siteye açılan yeni sekmeler ve yenilemeler aynı seviyeyle başlar
 
+### Klavye kısayolları (etkin sekme)
+
+| Kısayol | İşlem |
+|---|---|
+| `Alt+Shift+↑` / `Alt+Shift+↓` | Sesi %10 artır / azalt |
+| `Alt+Shift+0` | %100'e sıfırla |
+| `Alt+Shift+M` | Sessize al / sesi aç |
+
+Değiştirmek için: Chrome `chrome://extensions/shortcuts`, Brave `brave://extensions/shortcuts`, Firefox `about:addons` → ⚙ → *Eklenti kısayollarını yönet*.
+Başka bir eklenti aynı kısayolu kullanıyorsa tarayıcı atamayabilir; o sayfadan elle atayın.
+
 ## İkonlar
 
 `public/icon/*.png` dosyaları `node scripts/gen-icons.mjs` ile üretilir (bağımlılık gerektirmez).

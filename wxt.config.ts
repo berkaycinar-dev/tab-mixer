@@ -11,6 +11,25 @@ export default defineConfig({
     description: 'Chrome, Brave ve Firefox için sekmeler arası ses mikseri. Her sekmenin sesini ayrı ayrı ayarla.',
     permissions: ['tabs', 'storage', 'scripting'],
     host_permissions: ['<all_urls>'],
+    // Etkin sekmeye uygulanır. Kullanıcı tarayıcının kısayol ayarlarından değiştirebilir.
+    commands: {
+      'volume-up': {
+        suggested_key: { default: 'Alt+Shift+Up' },
+        description: 'Etkin sekmenin sesini %10 artır',
+      },
+      'volume-down': {
+        suggested_key: { default: 'Alt+Shift+Down' },
+        description: 'Etkin sekmenin sesini %10 azalt',
+      },
+      'toggle-mute': {
+        suggested_key: { default: 'Alt+Shift+M' },
+        description: 'Etkin sekmeyi sessize al / sesini aç',
+      },
+      'reset-volume': {
+        suggested_key: { default: 'Alt+Shift+0' },
+        description: 'Etkin sekmenin sesini %100\'e sıfırla',
+      },
+    },
     ...(browser === 'firefox' && {
       browser_specific_settings: {
         gecko: {
