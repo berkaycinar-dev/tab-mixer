@@ -87,6 +87,25 @@ export function App() {
         <h1>Tab Mixer</h1>
         <span class="count">{tabs ? `${tabs.length} sekme` : ''}</span>
       </header>
+      {pageCount > 1 && (
+        <nav class="pager" aria-label="Sayfalar">
+          {Array.from({ length: pageCount }, (_, i) => (
+            <button
+              key={i}
+              class={i === current ? 'page on' : 'page'}
+              aria-current={i === current ? 'page' : undefined}
+              title={`${i * PAGE_SIZE + 1}–${Math.min((i + 1) * PAGE_SIZE, tabs!.length)}. sekmeler`}
+              onClick={() => setPage(i)}
+            >
+              {i + 1}
+              {/* Bu sayfada şu an ses çalan sekme var mı */}
+              {tabs!.slice(i * PAGE_SIZE, (i + 1) * PAGE_SIZE).some((t) => t.audible) && i !== current && (
+                <span class="dot" aria-hidden="true" />
+              )}
+            </button>
+          ))}
+        </nav>
+      )}
       {error && <p class="error">{error}</p>}
       {tabs && tabs.length === 0 && (
         <p class="empty">
@@ -162,25 +181,6 @@ export function App() {
           );
         })}
       </ul>
-      {pageCount > 1 && (
-        <nav class="pager" aria-label="Sayfalar">
-          {Array.from({ length: pageCount }, (_, i) => (
-            <button
-              key={i}
-              class={i === current ? 'page on' : 'page'}
-              aria-current={i === current ? 'page' : undefined}
-              title={`${i * PAGE_SIZE + 1}–${Math.min((i + 1) * PAGE_SIZE, tabs!.length)}. sekmeler`}
-              onClick={() => setPage(i)}
-            >
-              {i + 1}
-              {/* Bu sayfada şu an ses çalan sekme var mı */}
-              {tabs!.slice(i * PAGE_SIZE, (i + 1) * PAGE_SIZE).some((t) => t.audible) && i !== current && (
-                <span class="dot" aria-hidden="true" />
-              )}
-            </button>
-          ))}
-        </nav>
-      )}
       <footer>Tekerlek: ±5% · Yüzdeye tıkla: sıfırla · 📌 siteyi hatırla</footer>
     </main>
   );

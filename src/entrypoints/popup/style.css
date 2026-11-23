@@ -96,7 +96,7 @@ input[type='range']::-moz-range-track { background: transparent; }
 .pct { min-width: 46px; text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); padding: 2px 4px; border-radius: 6px; }
 .pct:hover { background: var(--hover); color: var(--fg); }
 .pct.boost { color: var(--boost); font-weight: 600; }
-.pager { display: flex; justify-content: center; gap: 4px; margin-top: 8px; }
+.pager { display: flex; justify-content: center; gap: 4px; margin-bottom: 8px; }
 .page {
   position: relative;
   min-width: 28px; height: 28px; padding: 0 6px;
