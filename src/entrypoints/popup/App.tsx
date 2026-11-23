@@ -12,7 +12,7 @@ function hostOf(url: string) {
 }
 
 const MAX_PCT = MAX_GAIN * 100;
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 4;
 
 export function App() {
   const [tabs, setTabs] = useState<TabInfo[] | null>(null);
