@@ -12,10 +12,12 @@ function hostOf(url: string) {
 }
 
 const MAX_PCT = MAX_GAIN * 100;
+const PAGE_SIZE = 5;
 
 export function App() {
   const [tabs, setTabs] = useState<TabInfo[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
   /** Sürüklenen sekme: periyodik yenileme sürgüyü geri zıplatmasın. */
   const editing = useRef<number | null>(null);
 
@@ -66,6 +68,11 @@ export function App() {
     void send({ type: 'tm:set-gain', tabId: tab.id, gain });
   };
 
+  const pageCount = Math.max(1, Math.ceil((tabs?.length ?? 0) / PAGE_SIZE));
+  // Sekme kapanıp sayfa sayısı azalırsa boş sayfada kalma.
+  const current = Math.min(page, pageCount - 1);
+  const visible = tabs?.slice(current * PAGE_SIZE, (current + 1) * PAGE_SIZE);
+
   return (
     <main>
       <header>
@@ -81,7 +88,7 @@ export function App() {
         </p>
       )}
       <ul>
-        {tabs?.map((tab) => {
+        {visible?.map((tab) => {
           const pct = Math.round(tab.gain * 100);
           return (
             <li key={tab.id} class={tab.audible ? 'tab audible' : 'tab'}>
@@ -144,6 +151,25 @@ export function App() {
           );
         })}
       </ul>
+      {pageCount > 1 && (
+        <nav class="pager" aria-label="Sayfalar">
+          {Array.from({ length: pageCount }, (_, i) => (
+            <button
+              key={i}
+              class={i === current ? 'page on' : 'page'}
+              aria-current={i === current ? 'page' : undefined}
+              title={`${i * PAGE_SIZE + 1}–${Math.min((i + 1) * PAGE_SIZE, tabs!.length)}. sekmeler`}
+              onClick={() => setPage(i)}
+            >
+              {i + 1}
+              {/* Bu sayfada şu an ses çalan sekme var mı */}
+              {tabs!.slice(i * PAGE_SIZE, (i + 1) * PAGE_SIZE).some((t) => t.audible) && i !== current && (
+                <span class="dot" aria-hidden="true" />
+              )}
+            </button>
+          ))}
+        </nav>
+      )}
       <footer>Tekerlek: ±5% · Yüzdeye tıkla: sıfırla · 📌 siteyi hatırla</footer>
     </main>
   );

@@ -94,4 +94,17 @@ input[type='range']::-moz-range-track { background: transparent; }
 .pct { min-width: 46px; text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); padding: 2px 4px; border-radius: 6px; }
 .pct:hover { background: var(--hover); color: var(--fg); }
 .pct.boost { color: var(--boost); font-weight: 600; }
+.pager { display: flex; justify-content: center; gap: 4px; margin-top: 8px; }
+.page {
+  position: relative;
+  min-width: 28px; height: 28px; padding: 0 6px;
+  border-radius: 8px; border: 1px solid var(--line);
+  color: var(--muted); font-variant-numeric: tabular-nums;
+}
+.page:hover { background: var(--hover); color: var(--fg); }
+.page.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.page .dot {
+  position: absolute; top: 3px; right: 3px;
+  width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+}
 footer { margin-top: 10px; color: var(--muted); font-size: 11px; text-align: center; }
