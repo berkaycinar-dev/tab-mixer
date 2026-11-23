@@ -105,6 +105,9 @@ async function handle(msg: Message, sender: Browser.runtime.MessageSender): Prom
       if (tab?.windowId != null) await browser.windows.update(tab.windowId, { focused: true });
       return null;
     }
+    default:
+      // Popup arka plandan yeniyse (eklenti yeniden yüklenmemiş) sessizce yutma.
+      throw new Error(`Bilinmeyen işlem: ${(msg as { type?: string }).type}. Eklentiyi yeniden yükleyin.`);
   }
 }
 
