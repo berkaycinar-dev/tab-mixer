@@ -28,9 +28,28 @@ async function listTabs(): Promise<TabInfo[]> {
 
 const clampGain = (gain: number) => Math.min(MAX_GAIN, Math.max(0, Number(gain) || 0));
 
-/** Sekmeye kazancı uygula (durum + tüm frame'ler). */
+const BADGE_BOOST = '#e07a1f';
+const BADGE_CUT = '#5b5bf0';
+
+/** Seviye %100 değilse sekmeye özel rozet göster (ör. "150"). */
+async function updateBadge(tabId: number, gain?: number) {
+  gain ??= (await tabStore.get(tabId)).gain;
+  const pct = Math.round(gain * 100);
+  try {
+    await browser.action.setBadgeText({ tabId, text: pct === 100 ? '' : String(pct) });
+    if (pct !== 100) {
+      await browser.action.setBadgeBackgroundColor({ tabId, color: pct > 100 ? BADGE_BOOST : BADGE_CUT });
+      await browser.action.setBadgeTextColor?.({ tabId, color: '#ffffff' });
+    }
+  } catch {
+    // Sekme kapanmış olabilir.
+  }
+}
+
+/** Sekmeye kazancı uygula (durum + rozet + tüm frame'ler). */
 async function applyGain(tabId: number, g: number) {
   await tabStore.patch(tabId, { gain: g });
+  void updateBadge(tabId, g);
   const msg: ContentMessage = { type: 'tm:apply-gain', gain: g };
   await browser.tabs.sendMessage(tabId, msg).catch(() => {}); // tüm frame'lere gider
 }
@@ -59,6 +78,7 @@ async function gainForSender(sender: Browser.runtime.MessageSender) {
   const saved = await siteStore.get(siteOf(sender.tab?.url));
   if (saved !== undefined) {
     await tabStore.patch(tabId, { gain: saved });
+    void updateBadge(tabId, saved);
     return saved;
   }
   return (await tabStore.get(tabId)).gain;
@@ -135,6 +155,8 @@ export default defineBackground(() => {
         if (g !== undefined) return applyGain(tabId, g);
       });
     }
+    // Firefox gezinmede sekmeye özel rozeti sıfırlar; yeniden bas.
+    if (info.status) void updateBadge(tabId);
   });
   browser.tabs.onRemoved.addListener((tabId) => void tabStore.remove(tabId));
   void browser.tabs.query({ audible: true }).then((tabs) => {
