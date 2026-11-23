@@ -97,6 +97,9 @@ async function handle(msg: Message, sender: Browser.runtime.MessageSender): Prom
       return gainForSender(sender);
     case 'tm:remember':
       return remember(msg.tabId, msg.on);
+    case 'tm:close':
+      await browser.tabs.remove(msg.tabId); // durum onRemoved ile temizlenir
+      return null;
     case 'tm:focus': {
       const tab = await browser.tabs.update(msg.tabId, { active: true });
       if (tab?.windowId != null) await browser.windows.update(tab.windowId, { focused: true });

@@ -22,7 +22,8 @@ export type Message =
   | { type: 'tm:set-gain'; tabId: number; gain: number }
   | { type: 'tm:get-gain' }
   | { type: 'tm:remember'; tabId: number; on: boolean }
-  | { type: 'tm:focus'; tabId: number };
+  | { type: 'tm:focus'; tabId: number }
+  | { type: 'tm:close'; tabId: number };
 
 /** Background → content */
 export type ContentMessage = { type: 'tm:apply-gain'; gain: number };

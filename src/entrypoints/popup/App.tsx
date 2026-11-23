@@ -62,6 +62,14 @@ export function App() {
     send({ type: 'tm:remember', tabId: tab.id, on }).catch((e) => setError(String(e.message ?? e)));
   };
 
+  const closeTab = (tab: TabInfo) => {
+    setTabs((ts) => ts?.filter((t) => t.id !== tab.id) ?? ts);
+    send({ type: 'tm:close', tabId: tab.id }).catch((e) => {
+      setError(String(e.message ?? e));
+      refresh(); // kapanmadıysa listeye geri gelsin
+    });
+  };
+
   const setGain = (tab: TabInfo, pct: number) => {
     const gain = Math.round(pct) / 100;
     patchLocal(tab.id, { gain });
@@ -120,6 +128,9 @@ export function App() {
                 onClick={() => toggleMute(tab)}
               >
                 {tab.muted ? '🔇' : '🔊'}
+              </button>
+              <button class="icon close" title="Sekmeyi kapat" aria-label={`${tab.title} sekmesini kapat`} onClick={() => closeTab(tab)}>
+                ✕
               </button>
               <div class="volume">
                 <input
