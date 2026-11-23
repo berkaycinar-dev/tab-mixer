@@ -1,10 +1,20 @@
 import { defineConfig } from 'wxt';
 import preact from '@preact/preset-vite';
 
+// Hedef tarayıcı (-b / --browser). Şablon değişkenleri koşul desteklemediği için komut satırından okunur.
+declare const process: { argv: string[] }; // @types/node eklememek için
+const argv = process.argv;
+const flag = argv.findIndex((a) => a === '-b' || a === '--browser');
+const target = flag >= 0 ? argv[flag + 1] : (argv.find((a) => a.startsWith('--browser='))?.split('=')[1] ?? 'chrome');
+// Chrome build'i Brave'de (ve diğer Chromium tarayıcılarda) aynen çalışır; adı bunu belli etsin.
+const label = target === 'chrome' ? 'chrome-brave' : '{{browser}}';
+
 // Chrome, Brave ve Firefox için MV3 build.
 export default defineConfig({
   srcDir: 'src',
   manifestVersion: 3,
+  outDirTemplate: `${label}-mv{{manifestVersion}}{{modeSuffix}}`,
+  zip: { artifactTemplate: `{{name}}-{{version}}-${label}.zip` },
   vite: () => ({ plugins: [preact()] }),
   manifest: ({ browser }) => ({
     name: 'Tab Mixer',
