@@ -2,6 +2,17 @@
 
 Chrome, Brave ve Firefox için sekmeler arası ses mikseri. Her sekmenin sesini ayrı ayrı ayarla.
 
+## Özellikler
+
+- Ses çalan (veya bu oturumda çalmış) sekmelerin listesi, sekmeye atlama
+- Sekme başına sessize alma
+- Sekme başına ses seviyesi: %0–%600 (tekerlekle ±%5, yüzdeye tıklayınca %100)
+
+### Bilinen sınırlamalar
+
+- %100 üzeri güçlendirme yalnızca Web Audio'ya alınabilen medyada çalışır (aynı origin, `blob:`/MSE — ör. YouTube — veya CORS'lu kaynaklar). DRM'li ve CORS'suz çapraz origin medya %100'de sınırlanır.
+- Mağaza sayfaları, `chrome://` / `about:` gibi kısıtlı sayfalarda ses seviyesi ayarlanamaz (sessize alma çalışır).
+
 ## Geliştirme
 
 ```bash

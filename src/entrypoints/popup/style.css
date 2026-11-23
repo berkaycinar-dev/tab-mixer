@@ -7,6 +7,7 @@
   --accent: #5b5bf0;
   --accent-soft: #e8e8fd;
   --danger: #d6455d;
+  --boost: #e07a1f;
   color-scheme: light dark;
 }
 @media (prefers-color-scheme: dark) {
@@ -19,6 +20,7 @@
     --accent: #8c8cff;
     --accent-soft: #2b2b52;
     --danger: #ff6b81;
+    --boost: #ffa04d;
   }
 }
 * { box-sizing: border-box; }
@@ -58,3 +60,36 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .mute:hover { background: var(--hover); }
 .mute.on { background: var(--accent-soft); }
 button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.volume { display: flex; align-items: center; gap: 8px; width: 100%; padding: 0 2px; }
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1;
+  height: 6px;
+  border-radius: 99px;
+  margin: 0;
+  background:
+    linear-gradient(to right, transparent calc(var(--unity) - 1px), var(--muted) calc(var(--unity) - 1px), var(--muted) calc(var(--unity) + 1px), transparent calc(var(--unity) + 1px)),
+    linear-gradient(to right, var(--accent) var(--fill), var(--line) var(--fill));
+  cursor: pointer;
+}
+input[type='range'].boost {
+  background:
+    linear-gradient(to right, transparent calc(var(--unity) - 1px), var(--bg) calc(var(--unity) - 1px), var(--bg) calc(var(--unity) + 1px), transparent calc(var(--unity) + 1px)),
+    linear-gradient(to right, var(--accent) var(--unity), var(--boost) var(--unity), var(--boost) var(--fill), var(--line) var(--fill));
+}
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--bg); border: 2px solid var(--accent);
+}
+input[type='range']::-moz-range-thumb {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--bg); border: 2px solid var(--accent);
+}
+input[type='range']::-moz-range-track { background: transparent; }
+.pct { min-width: 46px; text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); padding: 2px 4px; border-radius: 6px; }
+.pct:hover { background: var(--hover); color: var(--fg); }
+.pct.boost { color: var(--boost); font-weight: 600; }
+footer { margin-top: 10px; color: var(--muted); font-size: 11px; text-align: center; }

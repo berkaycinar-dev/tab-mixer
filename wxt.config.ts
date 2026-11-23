@@ -9,7 +9,8 @@ export default defineConfig({
   manifest: ({ browser }) => ({
     name: 'Tab Mixer',
     description: 'Chrome, Brave ve Firefox için sekmeler arası ses mikseri. Her sekmenin sesini ayrı ayrı ayarla.',
-    permissions: ['tabs', 'storage'],
+    permissions: ['tabs', 'storage', 'scripting'],
+    host_permissions: ['<all_urls>'],
     ...(browser === 'firefox' && {
       browser_specific_settings: {
         gecko: {
